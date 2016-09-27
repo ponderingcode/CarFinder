@@ -1,8 +1,10 @@
-﻿using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNet.Identity;
+﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.AspNet.Identity.Owin;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Data.SqlClient;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace CarFinder.Models
 {
@@ -28,6 +30,43 @@ namespace CarFinder.Models
         public static ApplicationDbContext Create()
         {
             return new ApplicationDbContext();
+        }
+
+        public DbSet<Car> Cars { get; set; }
+
+        public async Task<List<string>> GetAllYears()
+        {
+            return await Database.SqlQuery<string>("GetAllYears").ToListAsync();
+        }
+
+        public async Task<List<string>> GetAllMakes(string year)
+        {
+            return await Database.SqlQuery<string>("GetAllMakes @year",
+                new SqlParameter("year", year)).ToListAsync();
+        }
+
+        public async Task<List<string>> GetAllModels(string year, string make)
+        {
+            return await Database.SqlQuery<string>("GetAllModels @year, @make",
+                new SqlParameter("year", year), 
+                new SqlParameter("make", make)).ToListAsync();
+        }
+
+        public async Task<List<string>> GetAllTrims(string year, string make, string modelName)
+        {
+            return await Database.SqlQuery<string>("GetAllTrims @year, @make, @modelName",
+               new SqlParameter("year", year),
+               new SqlParameter("make", make),
+               new SqlParameter("modelName", modelName)).ToListAsync();
+        }
+
+        public async Task<List<string>> GetCar(string year, string make, string modelName, string modelTrim)
+        {
+            return await Database.SqlQuery<string>("GetCar @year, @make, @modelName, @modelTrim",
+               new SqlParameter("year", year),
+               new SqlParameter("make", make),
+               new SqlParameter("modelName", modelName),
+               new SqlParameter("modelTrim", modelTrim)).ToListAsync();
         }
     }
 }
